@@ -34,16 +34,20 @@ use std::io;
 
 
 fn explain_rules() {
-    println!("Would you like an explanation of the rules? Please enter Yes or No.");
+    print!("Would you like an explanation of the rules? Please enter Yes or No.");
+    // todo maybe use unwrap for error hanlding, or something more graceful
     // create a mutable String to store the input
-    let mut user_input; // Declare the variable
-    user_input = String::new(); // Initialize it
+    let mut user_input; // declaration
+    user_input = String::new(); // initialization
 
     io::stdin()
-        .read_line(&mut user_input) // Attempt to read a line into the string
-        .expect("Failed to read line"); // Handle any potential I/O errors
+        .read_line(&mut user_input) // method to read input, assigns the input to user_input
+        .expect("Failed to read line"); // todo make sure this is the best way to handle errors
 
-    println!("You entered: {}", user_input.trim()); // change this to an if statement to handle Y/N or yes/no
+    // print the instructions if requested
+    if user_input == "YES" || user_input == "Yes" || user_input == "yes" || user_input == "Y" || user_input == "y" {
+        println!("Instructions ^_^")
+    }
 }
 
 fn print_board() {
@@ -62,6 +66,6 @@ fn count_tokens() {
 
 fn main() {
     println!("Welcome to Othello!");
-    
+    explain_rules();
 
 }
