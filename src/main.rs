@@ -1,8 +1,5 @@
 
-fn main() {
-    println!("Welcome to Othello!");
-    
-}
+use std::io;
 
 // row 1    | | | | | | | | | 
 // row 2    | | | | | | | | |
@@ -31,7 +28,40 @@ fn main() {
 /*  to make:
 > function to explain the rules (only called if user asks for it)
 > function to print the current state of the board
+> function to flip very token within a flank to the opposite team
+> function to keep track of tokens for each player
 */
 
 
-//testing github desktop
+fn explain_rules() {
+    println!("Would you like an explanation of the rules? Please enter Yes or No.");
+    // create a mutable String to store the input
+    let mut user_input; // Declare the variable
+    user_input = String::new(); // Initialize it
+
+    io::stdin()
+        .read_line(&mut user_input) // Attempt to read a line into the string
+        .expect("Failed to read line"); // Handle any potential I/O errors
+
+    println!("You entered: {}", user_input.trim()); // change this to an if statement to handle Y/N or yes/no
+}
+
+fn print_board() {
+    println!("BOARD!");
+}
+
+fn flip_tokens() {
+    println!("FLIPPING TOKENS!");
+}
+
+fn count_tokens() {
+    println!("Counting Tokens!");
+}
+
+    
+
+fn main() {
+    println!("Welcome to Othello!");
+    
+
+}
