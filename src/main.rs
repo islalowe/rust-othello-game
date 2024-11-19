@@ -34,20 +34,26 @@ use std::io;
 
 
 fn explain_rules() {
-    print!("Would you like an explanation of the rules? Please enter Yes or No.");
     // todo maybe use unwrap for error hanlding, or something more graceful
     // create a mutable String to store the input
     let mut user_input; // declaration
     user_input = String::new(); // initialization
 
-    io::stdin()
-        .read_line(&mut user_input) // method to read input, assigns the input to user_input
-        .expect("Failed to read line"); // todo make sure this is the best way to handle errors
+    while  user_input != "YES" || user_input != "Yes" || user_input != "yes" || user_input != "Y" || user_input != "y" ||
+    user_input != "NO" || user_input != "No" || user_input != "no" || user_input != "N" || user_input != "n" {
+        print!("Would you like an explanation of the rules? Please enter Yes or No.");
+        io::stdin()
+            .read_line(&mut user_input) // method to read input, assigns the input to user_input
+            .expect("Failed to read line"); // todo make sure this is the best way to handle errors
 
-    // print the instructions if requested
-    if user_input == "YES" || user_input == "Yes" || user_input == "yes" || user_input == "Y" || user_input == "y" {
-        println!("Instructions ^_^")
-    }
+        // print the instructions if requested
+        if user_input == "YES" || user_input == "Yes" || user_input == "yes" || user_input == "Y" || user_input == "y" {
+            println!("Instructions ^_^");
+        } 
+        else if user_input != "NO" || user_input != "No" || user_input != "no" || user_input != "N" || user_input != "n" {
+            print!("Invalid input! Please enter Yes or No.");
+        }
+    }   
 }
 
 fn print_board() {
