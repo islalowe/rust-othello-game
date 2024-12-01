@@ -33,45 +33,137 @@ use std::io;
 */
 
 
-fn explain_rules() {
-    // todo maybe use unwrap for error hanlding, or something more graceful
-    // create a mutable String to store the input
-    let mut user_input; // declaration
-    user_input = String::new(); // initialization
-
-    while  user_input != "YES" || user_input != "Yes" || user_input != "yes" || user_input != "Y" || user_input != "y" ||
-    user_input != "NO" || user_input != "No" || user_input != "no" || user_input != "N" || user_input != "n" {
-        print!("Would you like an explanation of the rules? Please enter Yes or No.");
-        io::stdin()
-            .read_line(&mut user_input) // method to read input, assigns the input to user_input
-            .expect("Failed to read line"); // todo make sure this is the best way to handle errors
-
-        // print the instructions if requested
-        if user_input == "YES" || user_input == "Yes" || user_input == "yes" || user_input == "Y" || user_input == "y" {
-            println!("Instructions ^_^");
-        } 
-        else if user_input != "NO" || user_input != "No" || user_input != "no" || user_input != "N" || user_input != "n" {
-            print!("Invalid input! Please enter Yes or No.");
-        }
-    }   
+struct GameState {
+    board: [[char; 8]; 8], // 8x8 grid, 'W', 'B', or ' ' for empty
+    white_tokens: u32,
+    black_tokens: u32,
+    current_turn: char // 'W' for white, 'B' for black
 }
+
+
+impl GameState {
+    // Make a new gameboard
+    fn new() -> GameState {
+        // Board is a 2D fixed-size array, denoted [T; N], for the element type, T, and the non-negative compile-time constant size, N
+        let mut board = [[' '; 8]; 8];
+        // Set up starting configuration
+        board[3][3] = 'W';
+        board[4][4] = 'W';
+        board[3][4] = 'B';
+        board[4][3] = 'B';
+        Self {
+            board,
+            white_tokens: 2,
+            black_tokens: 2,
+            current_turn: 'B', // Black starts by default
+        }
+    }
+
+    fn print_board(&self) {
+        println!("  1 2 3 4 5 6 7 8");
+        for (i, row) in self.board.iter().enumerate() {
+            print!("{} ", i + 1);
+            for cell in row.iter() {
+                print!("{} ", cell);
+            }
+            println!();
+        }
+    }
+
+    fn count_tokens(&self) -> (u32, u32) {
+        let mut white = 0;
+        let mut black = 0;
+        for row in &self.board {
+            for &cell in row {
+                if cell == 'W' {
+                    white += 1;
+                } else if cell == 'B' {
+                    black += 1;
+                }
+            }
+        }
+        (white, black)
+    }
+
+    fn check_endstate(game: &GameState) -> bool {
+        let (white, black) = game.count_tokens();
+        let total_tokens = white + black;
+        total_tokens == 64 || white == 0 || black == 0
+    }
+    
+
+
+}
+
+
+fn explain_rules() {
+    let mut user_input = String::new(); // declaration + initialization
+
+    loop {
+        println!("Would you like an explanation of the rules? Please enter Yes or No.");
+        user_input.clear(); // Clear previous input
+        io::stdin()
+            .read_line(&mut user_input)
+            .expect("Failed to read line");
+
+        let input = user_input.trim().to_lowercase(); // Normalize input
+        match input.as_str() {
+            "yes" | "y" => {
+                println!("Instructions ^_^");
+                break;
+            }
+            "no" | "n" => break,
+            _ => println!("Invalid input! Please enter Yes or No."),
+        }
+    }
+}
+
 
 fn print_board() {
-    println!("BOARD!");
+    println!("Current BOARD!");
 }
 
-fn flip_tokens() {
+fn update_board(tokens_flipped) {
     println!("FLIPPING TOKENS!");
+    return current_board;
 }
 
 fn count_tokens() {
     println!("Counting Tokens!");
 }
 
+fn check_endstate(current_board) {
+    bool game_over = false;
+    return game_over;
+}
+
+fn alex_moves() {
+    println!("Alex will move now!");
+}
+
+fn player_moves() {
+    println!("PLayer will move now!");
+}
+
+
     
 
 fn main() {
     println!("Welcome to Othello!");
+
     explain_rules();
 
+    let mut game = GameState::new();
+    game.print_board();
+
+    while !check_endstate(&game) {
+        if game.current_turn == 'B' {
+            player_moves(&mut game);
+        } else {
+            alex_moves(&mut game);
+        }
+        game.print_board();
+    }
+
+    println!("Game over!");
 }
