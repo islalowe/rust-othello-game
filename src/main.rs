@@ -1,8 +1,3 @@
-/* Othello game for one player to play against a computer player, named Alex. The Alex character will play random legal moves. 
-Kristen Lowe    -   12 Dec 2014
-Concepts of Programming Languages
-Winter 2024     -   Prof Arias */
-
 
 use std::io;
 use rand::Rng; 
