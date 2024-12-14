@@ -7,6 +7,7 @@ Winter 2024     -   Prof Arias */
 use std::io;
 use rand::Rng; 
 
+
 /*
 This struct maintains the current GameState through 4 variables. 
 board: a visual representation of the tokens placed on the board. A 2D array.
@@ -32,8 +33,8 @@ impl GameState {
         board[4][3] = 'B';
         Self {
             board,
-            white_tokens: 30,
-            black_tokens: 30,
+            white_tokens: 2,
+            black_tokens: 2,
             current_turn: 'B',
             player_color
         }
@@ -87,6 +88,7 @@ impl GameState {
     }
 
 
+    
     /* This function returns a vector of all the posssible legal moves that can be made at the current point in the game.
     The current instance of the gamestate is passed as a paramteter, immutably.
     Requirements for a legal move include: 
@@ -101,41 +103,45 @@ impl GameState {
      */
     fn find_legal_moves(&self) -> Vec<(usize, usize)> {
         let mut legal_moves = Vec::new();
-        // Check each space on the board for an empty one, checking rows & columns inclusive up to 7
+    
+        // Check each space on the board for an empty one
         for row in 0..8 {
             for col in 0..8 {
                 if self.board[row][col] == ' ' {
-                    // the space is empty, but the move isn't legal until the other tokens around have been checked as well
-                    let mut valid_move = false;
-                    // directions is an array that holds: 
-                    // left, right, down, up, diagonally down-left, diagonally up-left, diagonally down-right, diagonally up-right
+                    // The space is empty, now check surrounding tokens
                     let directions = [
                         (-1, 0), (1, 0), (0, -1), (0, 1),
                         (-1, -1), (-1, 1), (1, -1), (1, 1),
-                    ];
-                    // flanks need to be checked. dx and dy are directions, representing change in x and y. like an index.
+                    ]; // valid move will become true if the current empty square is next to an opponent square(s), followed by current player square
+                    let mut valid_move = false;
+                    // iterating through 
                     for &(dx, dy) in &directions {
-                        // track row and column indexes through the iteration
                         let mut temp_row = row as i32 + dx;
                         let mut temp_col = col as i32 + dy;
-                        // if an opponent's token is encounteres after a sequence of own tokens, the sequence should be flipped.
-                        let mut tokens_to_flip = Vec::new();
-                        // r and c are the temporary variables for row and column
+                        let mut has_opponent_between = false;
+                        //let mut tokens_to_flip = Vec::new();                     
+                        // Traverse in the direction until we reach the edge of the board
                         while temp_row >= 0 && temp_row < 8 && temp_col >= 0 && temp_col < 8 {
                             let r = temp_row as usize;
                             let c = temp_col as usize;
-                            // empty space, stop this direction bc a flank is not possible
+    
                             if self.board[r][c] == ' ' {
-                                break; // Empty space, stop checking this direction
+                                // Empty space, stop checking this direction
+                                break;
                             } else if self.board[r][c] == self.current_turn {
-                                // If the line ends with our own token, check if we have opponent tokens to flip
-                                if tokens_to_flip.len() > 0 {
+                                // If we reach our token, check if there's an opponent in between
+                                if has_opponent_between {
                                     valid_move = true; // Valid move found
+                                   // println!("tokens_to_flip: {:?}", tokens_to_flip); // Debugging
                                 }
                                 break;
                             } else {
-                                tokens_to_flip.push((r, c)); // Opponent token found
-                            } // Continue in this direction
+                                // Opponent's token
+                                has_opponent_between = true;
+                               // tokens_to_flip.push((r, c));
+                            }
+    
+                            // Move further in the current direction
                             temp_row += dx;
                             temp_col += dy;
                         }
@@ -151,6 +157,7 @@ impl GameState {
     }
 
 
+ 
     /* This function will generate random legal moves for the computer player, named Alex, to make */
     fn alex_moves(&mut self) {
         //Alex picks a random legal move
@@ -159,14 +166,16 @@ impl GameState {
         // if there are no legal moves, Alex's turn is skipped
         if !legal_moves.is_empty() {
             let (move_row, move_col) = legal_moves[rand::thread_rng().gen_range(0..legal_moves.len())];
+            println!("Alex's move is: {}, {}", move_row + 1, move_col + 1);
             self.flip_tokens(move_row, move_col);
+            self.print_board();
             if self.player_color == 'W' {       // if Alex is using the Black tokens
-                self.black_tokens = self.black_tokens - 1;
+                self.black_tokens = self.black_tokens + 1;
             } else {
-                self.white_tokens = self.white_tokens - 1;
+                self.white_tokens = self.white_tokens + 1;
             }
         } else {
-            println!("No legal moves available. Skipping turn.")
+            println!("No legal moves available. Skipping turn.");
         }
     }
 
@@ -175,15 +184,13 @@ impl GameState {
     @return: a tuple containing the move input by the player
      */
     fn player_moves(&mut self) {
-        self.print_board();
         println!("It is your turn! Please enter a valid move in the format: row column");
-
-        let possible_moves = self.find_legal_moves(); // Assuming this returns Vec<(usize, usize)>
+        self.print_board();
+        let possible_moves = self.find_legal_moves(); 
         if possible_moves.is_empty() {
             println!("No legal moves available. Skipping turn.");
             return;
         }
-
         let mut user_input = String::new();
         loop {
             user_input.clear(); // Clear previous input
@@ -191,24 +198,26 @@ impl GameState {
                 .read_line(&mut user_input)
                 .expect("Failed to read input");
 
-            // Split input and parse it into integers
+            // split input and parse it into integers
             let parts: Vec<&str> = user_input.trim().split_whitespace().collect();
             if parts.len() == 2 {
                 if let (Ok(row), Ok(col)) = (parts[0].parse::<usize>(), parts[1].parse::<usize>()) {
-                    let move_tuple = (row, col);
-                    // Check if the move is in the list of possible moves
+                    let move_tuple = (row - 1, col - 1);  // decrease by 1 so the player can count from 1 instead of 0
+                    // check if the move is in the list of possible moves
                     if possible_moves.contains(&move_tuple) {
                         println!("Move accepted.");
-                        self.flip_tokens(row, col); // Apply the move
+                        self.flip_tokens(row - 1, col - 1);  // apply the move to the board
+                        self.print_board();
                         // adjust token count
                         if self.player_color == 'W' {       
-                            self.white_tokens = self.white_tokens - 1;
+                            self.white_tokens = self.white_tokens + 1;
                         } else {
-                            self.black_tokens = self.black_tokens - 1;
+                            self.black_tokens = self.black_tokens + 1;
                         }
                         break; // Exit the loop
                     } else {
-                        println!("Invalid move. Please choose from the available moves: {:?}", possible_moves);
+                        println!("Invalid move. Please try again.");
+                        //println!("Invalid move. Please choose from the available moves: {:?}", possible_moves);
                     }
                 } else {
                     println!("Invalid input format. Please enter two numbers separated by a space.");
