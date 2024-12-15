@@ -5,7 +5,6 @@ This game is Othello and is played by 2 players. One player controlls white toke
 ### How to Run
 * You will need to have the Rust programming language installed on your computer. You can download and install Rust from rust-lang.org.
 * Clone this repository to your computer. You can use the green `code` button, or git clone <https://github.com/csc3310-fall2024/rust-islalowe.git>
-![green code button](greenScreenshot.jpeg)
 * Navigate on your computer to the directory where the project was saved.
 * Run the game with the command: `cargo run`
 * If you want to quit the game, use `cntr + c`
